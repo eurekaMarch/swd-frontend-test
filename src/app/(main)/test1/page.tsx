@@ -100,15 +100,10 @@ function Test1() {
   const [swap, setSwap] = useState<boolean>(false);
   const [components, setComponents] = useState<JSX.Element[]>([
     <Circle key="1" />,
-
     <Oval key="2" />,
-
     <Trapezoid key="3" />,
-
     <Parallelogram key="4" />,
-
     <Square key="5" />,
-
     <Rectangle key="6" />,
   ]);
   const { t } = useTranslation();
