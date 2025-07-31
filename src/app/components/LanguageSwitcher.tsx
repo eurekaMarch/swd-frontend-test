@@ -36,8 +36,7 @@ const LanguageSwitcher = () => {
       <Select
         value={currentLang}
         onChange={handleChange}
-        dropdownMatchSelectWidth={false}
-        style={{ minWidth: "auto" }}
+        style={{ minWidth: "75px" }}
         options={options}
       />
     </Wrapper>

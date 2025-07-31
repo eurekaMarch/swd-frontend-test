@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Space, Typography, Card } from "antd";
+import { Space, Typography, Card, Row, Col } from "antd";
 import styled from "styled-components";
 import "../../i18n";
 import { useTranslation } from "react-i18next";
@@ -13,7 +13,6 @@ import Parallelogram from "@/app/components/parallelogram";
 import Square from "@/app/components/square ";
 import Rectangle from "@/app/components/rectangle";
 
-const { Text } = Typography;
 const { Title } = Typography;
 
 const Container = styled.div`
@@ -98,34 +97,47 @@ const Label = styled.div`
 `;
 
 function Test1() {
-  const [items, setItems] = useState<string[]>(["1", "2", "3"]);
+  const [swap, setSwap] = useState<boolean>(false);
+  const [components, setComponents] = useState<JSX.Element[]>([
+    <Circle key="1" />,
+
+    <Oval key="2" />,
+
+    <Trapezoid key="3" />,
+
+    <Parallelogram key="4" />,
+
+    <Square key="5" />,
+
+    <Rectangle key="6" />,
+  ]);
   const { t } = useTranslation();
 
   const moveLeft = () => {
-    const newItems = [...items];
-    const first = newItems.shift(); // ลบตัวแรก
+    const newArray = [...components];
+    const first = newArray.shift(); // ลบตัวแรก
     if (first !== undefined) {
-      newItems.push(first); // เอาไปใส่ท้าย
+      newArray.push(first); // เอาไปใส่ท้าย
     }
-    setItems(newItems);
+    setComponents(newArray);
   };
 
   const moveRight = () => {
-    const newItems = [...items];
-    const last = newItems.pop(); // ลบตัวท้าย
+    const newArray = [...components];
+    const last = newArray.pop(); // ลบตัวท้าย
     if (last !== undefined) {
-      newItems.unshift(last); // เอาไปใส่ข้างหน้า
+      newArray.unshift(last); // เอาไปใส่ข้างหน้า
     }
-    setItems(newItems);
+    setComponents(newArray);
   };
 
   const moveUpDown = () => {
-    // const newItems = [...items];
-    // const last = newItems.pop(); // ลบตัวท้าย
-    // if (last !== undefined) {
-    //   newItems.unshift(last); // เอาไปใส่ข้างหน้า
-    // }
-    // setItems(newItems);
+    setSwap(!swap);
+  };
+
+  const random = () => {
+    const newArray = [...components].sort(() => Math.random() - 0.5);
+    setComponents(newArray);
   };
 
   return (
@@ -134,7 +146,7 @@ function Test1() {
 
       <StyledTitle>{t("detailHome1")}</StyledTitle>
 
-      <Space style={{ marginBottom: 50 }}>
+      <Space style={{ marginBottom: 100 }}>
         <StyledCard onClick={moveLeft}>
           <Left></Left>
           <Label>{t("leftRight")}</Label>
@@ -154,27 +166,43 @@ function Test1() {
         </StyledCard>
       </Space>
 
-      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-        <Circle />
+      {swap ? (
+        <div>
+          <Row justify="center" gutter={[16, 16]}>
+            {components.slice(3, 6).map((item, index) => (
+              <Col key={index} span={6} onClick={random}>
+                {item}
+              </Col>
+            ))}
+          </Row>
 
-        <Oval />
+          <Row justify="end" gutter={[16, 16]} style={{ marginTop: 24 }}>
+            {components.slice(0, 3).map((item, index) => (
+              <Col key={index} span={6} onClick={random}>
+                {item}
+              </Col>
+            ))}
+          </Row>
+        </div>
+      ) : (
+        <div>
+          <Row justify="end" gutter={[16, 16]}>
+            {components.slice(0, 3).map((item, index) => (
+              <Col key={index} span={6} onClick={random}>
+                {item}
+              </Col>
+            ))}
+          </Row>
 
-        <Trapezoid />
-
-        <Parallelogram />
-
-        <Square />
-
-        <Rectangle />
-      </div>
-
-      <div style={{ marginTop: 24 }}>
-        {items.map((item, index) => (
-          <Text key={index} style={{ margin: "0 12px", fontSize: 24 }}>
-            {item}
-          </Text>
-        ))}
-      </div>
+          <Row justify="center" gutter={[16, 16]} style={{ marginTop: 24 }}>
+            {components.slice(3, 6).map((item, index) => (
+              <Col key={index} span={6} onClick={random}>
+                {item}
+              </Col>
+            ))}
+          </Row>
+        </div>
+      )}
     </Container>
   );
 }
