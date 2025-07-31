@@ -111,6 +111,7 @@ function Test1() {
   const moveLeft = () => {
     const newArray = [...components];
     const first = newArray.shift(); // ลบตัวแรก
+
     if (first !== undefined) {
       newArray.push(first); // เอาไปใส่ท้าย
     }
@@ -120,6 +121,7 @@ function Test1() {
   const moveRight = () => {
     const newArray = [...components];
     const last = newArray.pop(); // ลบตัวท้าย
+
     if (last !== undefined) {
       newArray.unshift(last); // เอาไปใส่ข้างหน้า
     }
