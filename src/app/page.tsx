@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useRouter } from "next/navigation";
+import React from "react";
+import { useRouter } from "next/navigation";
 import "./i18n";
 import { useTranslation } from "react-i18next";
 import LanguageSwitcher from "./components/LanguageSwitcher";

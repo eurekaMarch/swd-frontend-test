@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useState } from "react";
-import { Space, Typography, Card, Row, Col } from "antd";
+import { useRouter } from "next/navigation";
+import { Space, Typography, Card, Row, Col, Button } from "antd";
 import styled from "styled-components";
 import "../../i18n";
 import { useTranslation } from "react-i18next";
@@ -23,6 +24,13 @@ const Container = styled.div`
 const StyledTitle = styled(Title)`
   text-align: start;
 `;
+
+const WrapButton = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 1rem;
+`;
+
 const StyledCard = styled(Card)`
   display: flex;
   justify-content: center;
@@ -107,6 +115,7 @@ function Test1() {
     <Rectangle key="6" />,
   ]);
   const { t } = useTranslation();
+  const router = useRouter();
 
   const moveLeft = () => {
     const newArray = [...components];
@@ -140,6 +149,19 @@ function Test1() {
   return (
     <Container>
       <LanguageSwitcher />
+
+      <WrapButton>
+        <Button
+          color="default"
+          variant="text"
+          style={{
+            backgroundColor: "white",
+          }}
+          onClick={() => router.push("/")}
+        >
+          {t("goHome")}
+        </Button>
+      </WrapButton>
 
       <StyledTitle>{t("detailHome1")}</StyledTitle>
 
