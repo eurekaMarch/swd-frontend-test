@@ -56,7 +56,7 @@ const StyledTitle = styled(Title)`
   text-align: start;
 `;
 
-type Person = {
+interface Person {
   id: number;
   prefix: string;
   firstName: string;
@@ -73,7 +73,7 @@ type Person = {
   phoneNumber: string;
   passport: string;
   salary: string;
-};
+}
 
 function Test2() {
   const { t, i18n } = useTranslation();
