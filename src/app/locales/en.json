@@ -35,5 +35,7 @@
   "next": "NEXT",
   "manage": "MANAGE",
   "edit": "EDIT",
+  "messageSave": "Save Success",
+  "messageDelete": "Delete Success",
   "message": "This field is required."
 }

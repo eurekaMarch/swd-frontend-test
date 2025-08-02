@@ -19,13 +19,23 @@ import {
   Pagination,
   Form,
 } from "antd";
-// import type { DatePickerProps } from "antd";
-// import type { RadioChangeEvent } from "antd";
+import dayjs from "dayjs";
 import type { SelectProps } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import type { CheckboxChangeEvent } from "antd/es/checkbox";
 import styled from "styled-components";
 import Image from "next/image";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  saveForm,
+  getData,
+  deleteOne,
+  deleteMore,
+  setSelectedRowIds,
+  getDataById,
+  updateForm,
+} from "@/app/store/Reducer";
+import { RootState } from "@/app/store/Store";
 
 const { Title } = Typography;
 const { Text } = Typography;
@@ -47,96 +57,43 @@ const StyledTitle = styled(Title)`
 `;
 
 type Person = {
-  id: string;
-  name: string;
-  gender: string;
-  mobile: string;
+  id: number;
+  prefix: string;
+  firstName: string;
+  lastName: string;
+  birthday: string;
   nationality: string;
+  citizenID1: string;
+  citizenID2: string;
+  citizenID3: string;
+  citizenID4: string;
+  citizenID5: string;
+  gender: string;
+  countryCode: string;
+  phoneNumber: string;
+  passport: string;
+  salary: string;
 };
-
-const mockData: Person[] = [
-  {
-    id: "1",
-    name: "John Smith",
-    gender: "Male",
-    mobile: "0812345678",
-    nationality: "American",
-  },
-  {
-    id: "2",
-    name: "Suda Wong",
-    gender: "Female",
-    mobile: "0897654321",
-    nationality: "Thai",
-  },
-  {
-    id: "3",
-    name: "Marie Dubois",
-    gender: "Female",
-    mobile: "0612349876",
-    nationality: "French",
-  },
-  {
-    id: "4",
-    name: "James Lee",
-    gender: "Male",
-    mobile: "0843217890",
-    nationality: "American",
-  },
-  {
-    id: "5",
-    name: "Napat Chai",
-    gender: "Male",
-    mobile: "0912345678",
-    nationality: "Thai",
-  },
-  {
-    id: "6",
-    name: "Claire Bernard",
-    gender: "Female",
-    mobile: "0623456789",
-    nationality: "French",
-  },
-  {
-    id: "7",
-    name: "Robert Brown",
-    gender: "Male",
-    mobile: "0887654321",
-    nationality: "American",
-  },
-  {
-    id: "8",
-    name: "Nicha Sorn",
-    gender: "Female",
-    mobile: "0967890123",
-    nationality: "Thai",
-  },
-  {
-    id: "9",
-    name: "Émile Laurent",
-    gender: "Male",
-    mobile: "0632109876",
-    nationality: "French",
-  },
-  {
-    id: "10",
-    name: "Linda Carter",
-    gender: "Female",
-    mobile: "0954321765",
-    nationality: "American",
-  },
-];
 
 function Test2() {
   const { t, i18n } = useTranslation();
   const [message, setMessage] = useState(t("message"));
   const router = useRouter();
-  const [selectedRowIds, setSelectedRowIds] = useState<React.Key[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
+  const [editData, setEditData] = useState<boolean>(false);
   const PAGE_SIZE = 5;
   const [form] = Form.useForm();
 
-  const paginatedData = mockData.slice(
+  const dispatch = useDispatch();
+  const formData = useSelector((state: RootState) => state.form.formData);
+  const selectedRowIds = useSelector(
+    (state: RootState) => state.form.selecteID
+  );
+  const dataById = useSelector((state: RootState) => state.form.dataById);
+
+  const sortedData = [...formData].sort((a, b) => b.id - a.id);
+
+  const paginatedData = sortedData.slice(
     (currentPage - 1) * PAGE_SIZE,
     currentPage * PAGE_SIZE
   );
@@ -145,12 +102,86 @@ function Test2() {
     form.resetFields();
   };
 
+  const handleDeleteOne = (id: number) => {
+    dispatch(deleteOne(id));
+    alert(t("messageDelete"));
+    dispatch(getData());
+  };
+
+  const handleDeleteMore = () => {
+    if (selectedRowIds.length === 0) {
+      return;
+    }
+
+    dispatch(deleteMore(selectedRowIds));
+    alert(t("messageDelete"));
+    dispatch(getData());
+  };
+
+  const handleEdit = (id: number) => {
+    dispatch(getDataById(id));
+    setEditData(true);
+  };
+
   const handleSubmit = (values: any) => {
-    const formattedValues = {
-      ...values,
-      birthday: values.birthday ? values.birthday.format("DD/MM/YYYY") : null,
-    };
-    console.log(formattedValues);
+    if (editData) {
+      if (!dataById) return;
+
+      const updateData = {
+        id: dataById.id,
+        prefix: values.prefix,
+        firstName: values.firstName,
+        lastName: values.lastName,
+        birthday: values.birthday ? values.birthday.format("DD/MM/YYYY") : null,
+        nationality: values.nationality,
+        citizenID1: values.id1,
+        citizenID2: values.id2,
+        citizenID3: values.id3,
+        citizenID4: values.id4,
+        citizenID5: values.id5,
+        gender: values.gender,
+        countryCode: values.countryCode,
+        phoneNumber: values.phoneNumber,
+        passport: values.passport,
+        salary: values.salary,
+      };
+
+      dispatch(updateForm(updateData));
+
+      setEditData(false);
+
+      alert(t("messageSave"));
+
+      dispatch(getData());
+
+      form.resetFields();
+    } else {
+      const saveData = {
+        prefix: values.prefix,
+        firstName: values.firstName,
+        lastName: values.lastName,
+        birthday: values.birthday ? values.birthday.format("DD/MM/YYYY") : null,
+        nationality: values.nationality,
+        citizenID1: values.id1,
+        citizenID2: values.id2,
+        citizenID3: values.id3,
+        citizenID4: values.id4,
+        citizenID5: values.id5,
+        gender: values.gender,
+        countryCode: values.countryCode,
+        phoneNumber: values.phoneNumber,
+        passport: values.passport,
+        salary: values.salary,
+      };
+
+      dispatch(saveForm(saveData));
+
+      alert(t("messageSave"));
+
+      dispatch(getData());
+
+      form.resetFields();
+    }
   };
 
   const countryOptions: SelectProps["options"] = [
@@ -201,14 +232,10 @@ function Test2() {
     },
   ];
 
-  // const onSelectChange = (newSelectedRowIds: React.Key[]) => {
-  //   setSelectedRowIds(newSelectedRowIds);
-  // };
-
   const selectAll = (e: CheckboxChangeEvent) => {
     const checked = e.target.checked;
-    const allIds = checked ? mockData.map((item) => item.id) : [];
-    setSelectedRowIds(allIds);
+    const allIds = checked ? formData.map((item) => item.id) : [];
+    dispatch(setSelectedRowIds(allIds));
   };
 
   const columns: ColumnsType<Person> = [
@@ -216,32 +243,35 @@ function Test2() {
       title: (
         <Checkbox
           onClick={(e) => e.stopPropagation()}
-          checked={selectedRowIds.length === mockData.length}
+          checked={
+            formData.length > 0 && selectedRowIds.length === formData.length
+          }
           indeterminate={
-            selectedRowIds.length > 0 && selectedRowIds.length < mockData.length
+            selectedRowIds.length > 0 && selectedRowIds.length < formData.length
           }
           onChange={(e) => {
             const checked = e.target.checked;
-            const ids = checked ? mockData.map((item) => item.id) : [];
-            setSelectedRowIds(ids);
+            const ids = checked ? formData.map((item) => item.id) : [];
+            dispatch(setSelectedRowIds(ids));
           }}
         >
           {t("name")}
         </Checkbox>
       ),
-      dataIndex: "name",
-      key: "name",
-      sorter: (a, b) => a.name.localeCompare(b.name),
+      dataIndex: "firstName",
+      key: "firstName",
+      sorter: (a, b) => a.firstName.localeCompare(b.firstName),
       render: (text, record) => (
         <Checkbox
           checked={selectedRowIds.includes(record.id)}
           onChange={(e) => {
             const checked = e.target.checked;
-            setSelectedRowIds((prev) =>
-              checked
-                ? [...prev, record.id]
-                : prev.filter((id) => id !== record.id)
-            );
+
+            const newSelected = checked
+              ? [...selectedRowIds, record.id]
+              : selectedRowIds.filter((id) => id !== record.id);
+
+            dispatch(setSelectedRowIds(newSelected));
           }}
         >
           {text}
@@ -256,10 +286,12 @@ function Test2() {
     },
     {
       title: <>{t("mobile")}</>,
-      dataIndex: "mobile",
       key: "mobile",
+      render: (text, record) => `${record.countryCode}${record.phoneNumber}`,
       sorter: (a, b) =>
-        a.mobile.slice(0, 3).localeCompare(b.mobile.slice(0, 3)),
+        a.countryCode
+          .replace("+", "")
+          .localeCompare(b.countryCode.replace("+", "")),
     },
     {
       title: <>{t("nation")}</>,
@@ -275,17 +307,25 @@ function Test2() {
           <Button
             color="default"
             variant="link"
-            onClick={() => console.log(record.id)}
+            onClick={() => handleEdit(record.id)}
           >
             Edit
           </Button>
-          <Button color="default" variant="link">
+          <Button
+            color="default"
+            variant="link"
+            onClick={() => handleDeleteOne(record.id)}
+          >
             Delete
           </Button>
         </div>
       ),
     },
   ];
+
+  useEffect(() => {
+    dispatch(getData());
+  }, [dispatch]);
 
   useEffect(() => {
     const handleLangChange = () => {
@@ -298,6 +338,88 @@ function Test2() {
       i18n.off("languageChanged", handleLangChange);
     };
   }, [i18n, t]);
+
+  useEffect(() => {
+    if (dataById && editData) {
+      form.setFieldsValue({
+        prefix: dataById.prefix,
+        firstName: dataById.firstName,
+        lastName: dataById.lastName,
+        birthday: dayjs(dataById.birthday, "DD/MM/YYYY"),
+        nationality: dataById.nationality,
+        id1: dataById.citizenID1,
+        id2: dataById.citizenID2,
+        id3: dataById.citizenID3,
+        id4: dataById.citizenID4,
+        id5: dataById.citizenID5,
+        gender: dataById.gender,
+        countryCode: dataById.countryCode,
+        phoneNumber: dataById.phoneNumber,
+        passport: dataById.passport,
+        salary: dataById.salary,
+      });
+    }
+  }, [dataById, form, editData]);
+
+  // useEffect(() => {
+  //   const updateData = [
+  //     {
+  //       prefix: "mr",
+  //       firstName: "มานะ",
+  //       lastName: "รวยมาก",
+  //       birthday: "05/02/2025",
+  //       nationality: "thai",
+  //       citizenID1: "1",
+  //       citizenID2: "1234",
+  //       citizenID3: "12345",
+  //       citizenID4: "12",
+  //       citizenID5: "1",
+  //       gender: "male",
+  //       countryCode: "+66",
+  //       phoneNumber: "0897654356",
+  //       passport: "",
+  //       salary: "25000",
+  //       id: 1,
+  //     },
+  //     {
+  //       prefix: "mrs",
+  //       firstName: "มาลี",
+  //       lastName: "ใจดี",
+  //       birthday: "16/08/2023",
+  //       nationality: "thai",
+  //       citizenID1: "1",
+  //       citizenID2: "1234",
+  //       citizenID3: "12345",
+  //       citizenID4: "12",
+  //       citizenID5: "1",
+  //       gender: "female",
+  //       countryCode: "+1",
+  //       phoneNumber: "1234567890",
+  //       passport: "1234567890",
+  //       salary: "35000",
+  //       id: 2,
+  //     },
+  //     {
+  //       prefix: "mr",
+  //       firstName: "สมุด",
+  //       lastName: "ดินสอ",
+  //       birthday: "01/01/2018",
+  //       nationality: "thai",
+  //       citizenID1: "1",
+  //       citizenID2: "1234",
+  //       citizenID3: "12345",
+  //       citizenID4: "12",
+  //       citizenID5: "1",
+  //       gender: "male",
+  //       countryCode: "+33",
+  //       phoneNumber: "0876512345",
+  //       passport: "1234567890",
+  //       salary: "80000",
+  //       id: 3,
+  //     },
+  //   ];
+  //   localStorage.setItem("formData", JSON.stringify(updateData));
+  // }, []);
 
   return (
     <Container>
@@ -349,52 +471,44 @@ function Test2() {
               </Col>
 
               <Col span={9}>
-                <Form.Item
-                  name="firstName"
-                  rules={[{ required: true, message: message }]}
-                  style={{ marginBottom: 0 }}
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                  }}
                 >
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      width: "100%",
-                    }}
+                  <Text strong style={{ marginRight: 9, whiteSpace: "nowrap" }}>
+                    <span style={{ color: "red" }}>*</span> {t("firstName")}:
+                  </Text>
+                  <Form.Item
+                    name="firstName"
+                    rules={[{ required: true, message: message }]}
+                    style={{ marginBottom: 0, width: "100%" }}
                   >
-                    <Text
-                      strong
-                      style={{ marginRight: 9, whiteSpace: "nowrap" }}
-                    >
-                      <span style={{ color: "red" }}>*</span> {t("firstName")}:
-                    </Text>
                     <Input style={{ flex: 1 }} />
-                  </div>
-                </Form.Item>
+                  </Form.Item>
+                </div>
               </Col>
 
               <Col span={9}>
-                <Form.Item
-                  name="lastName"
-                  rules={[{ required: true, message: message }]}
-                  style={{ marginBottom: 0 }}
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                  }}
                 >
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      width: "100%",
-                    }}
+                  <Text strong style={{ marginRight: 9, whiteSpace: "nowrap" }}>
+                    <span style={{ color: "red" }}>*</span>
+                    {t("lastName")}:
+                  </Text>
+                  <Form.Item
+                    name="lastName"
+                    rules={[{ required: true, message: message }]}
+                    style={{ marginBottom: 0, width: "100%" }}
                   >
-                    <Text
-                      strong
-                      style={{ marginRight: 9, whiteSpace: "nowrap" }}
-                    >
-                      <span style={{ color: "red" }}>*</span>
-                      {t("lastName")}:
-                    </Text>
                     <Input style={{ flex: 1 }} />
-                  </div>
-                </Form.Item>
+                  </Form.Item>
+                </div>
               </Col>
             </Row>
 
@@ -411,6 +525,7 @@ function Test2() {
                     <span style={{ color: "red" }}>*</span>
                     {t("birthday")}:
                   </Text>
+
                   <Form.Item
                     name="birthday"
                     rules={[{ required: true, message: message }]}
@@ -433,6 +548,7 @@ function Test2() {
                     <span style={{ color: "red" }}>*</span>
                     {t("nation")}:
                   </Text>
+
                   <Form.Item
                     name="nationality"
                     rules={[{ required: true, message: message }]}
@@ -570,33 +686,30 @@ function Test2() {
 
             <Row style={{ marginTop: 20 }} gutter={[16, 16]}>
               <Col span={7}>
-                <Form.Item
-                  name="gender"
-                  rules={[{ required: true, message: message }]}
-                  style={{ marginBottom: 0 }}
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    width: "100%",
+                  }}
                 >
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      width: "100%",
-                    }}
-                  >
-                    <Text
-                      strong
-                      style={{ marginRight: 9, whiteSpace: "nowrap" }}
-                    >
-                      <span style={{ color: "red" }}>*</span>
-                      {t("gender")}:
-                    </Text>
+                  <Text strong style={{ marginRight: 9, whiteSpace: "nowrap" }}>
+                    <span style={{ color: "red" }}>*</span>
+                    {t("gender")}:
+                  </Text>
 
+                  <Form.Item
+                    name="gender"
+                    rules={[{ required: true, message: message }]}
+                    style={{ marginBottom: 0 }}
+                  >
                     <Radio.Group>
                       <Radio value="male">{t("male")}</Radio>
                       <Radio value="female">{t("female")}</Radio>
                       <Radio value="unisex">{t("unisex")}</Radio>
                     </Radio.Group>
-                  </div>
-                </Form.Item>
+                  </Form.Item>
+                </div>
               </Col>
             </Row>
 
@@ -658,56 +771,47 @@ function Test2() {
 
             <Row style={{ marginTop: 20 }} gutter={[16, 16]}>
               <Col span={8}>
-                <Form.Item
-                  name="passport"
-                  style={{ marginBottom: 0 }}
-                  rules={[]}
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                  }}
                 >
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      width: "100%",
-                    }}
+                  <Text strong style={{ marginRight: 9, whiteSpace: "nowrap" }}>
+                    {t("passport")}:
+                  </Text>
+                  <Form.Item
+                    name="passport"
+                    style={{ marginBottom: 0, width: "100%" }}
+                    rules={[]}
                   >
-                    <Text
-                      strong
-                      style={{ marginRight: 9, whiteSpace: "nowrap" }}
-                    >
-                      {t("passport")}:
-                    </Text>
-
                     <Input style={{ flex: 1 }} />
-                  </div>
-                </Form.Item>
+                  </Form.Item>
+                </div>
               </Col>
             </Row>
 
             <Row style={{ marginTop: 20 }} gutter={[16, 16]}>
               <Col span={8}>
-                <Form.Item
-                  name="salary"
-                  rules={[{ required: true, message: message }]}
-                  style={{ marginBottom: 0 }}
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    width: "100%",
+                  }}
                 >
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      width: "100%",
-                    }}
+                  <Text strong style={{ marginRight: 9, whiteSpace: "nowrap" }}>
+                    <span style={{ color: "red" }}>*</span>
+                    {t("salary")}:
+                  </Text>
+                  <Form.Item
+                    name="salary"
+                    rules={[{ required: true, message: message }]}
+                    style={{ marginBottom: 0 }}
                   >
-                    <Text
-                      strong
-                      style={{ marginRight: 9, whiteSpace: "nowrap" }}
-                    >
-                      <span style={{ color: "red" }}>*</span>
-                      {t("salary")}:
-                    </Text>
-
                     <Input style={{ flex: 1 }} />
-                  </div>
-                </Form.Item>
+                  </Form.Item>
+                </div>
               </Col>
 
               <Col span={4}></Col>
@@ -750,7 +854,9 @@ function Test2() {
       <div style={{ textAlign: "start", margin: "2rem 4rem" }}>
         <div style={{ display: "flex", alignItems: "center" }}>
           <Checkbox
-            checked={selectedRowIds.length === mockData.length}
+            checked={
+              formData.length > 0 && selectedRowIds.length === formData.length
+            }
             onChange={selectAll}
           >
             {t("selectAll")}
@@ -759,6 +865,8 @@ function Test2() {
           <Button
             color="default"
             variant="text"
+            disabled={paginatedData.length === 0}
+            onClick={handleDeleteMore}
             style={{
               backgroundColor: "white",
               marginLeft: "1rem",
@@ -772,7 +880,7 @@ function Test2() {
           <Wrap>
             <Pagination
               current={currentPage}
-              total={mockData.length}
+              total={formData.length}
               pageSize={PAGE_SIZE}
               onChange={(page) => setCurrentPage(page)}
               style={{ marginBottom: 16, textAlign: "right" }}
