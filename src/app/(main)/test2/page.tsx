@@ -81,7 +81,7 @@ function Test2() {
   const router = useRouter();
   const [currentPage, setCurrentPage] = useState(1);
   const [editData, setEditData] = useState<boolean>(false);
-  const PAGE_SIZE = 5;
+  const PAGE_SIZE = 3;
   const [form] = Form.useForm();
 
   const dispatch = useDispatch();
@@ -93,7 +93,27 @@ function Test2() {
 
   const sortedData = [...formData].sort((a, b) => b.id - a.id);
 
-  const paginatedData = sortedData.slice(
+  const convertData = sortedData.map((item) => ({
+    ...item,
+    gender:
+      item.gender === "male"
+        ? t("male")
+        : item.gender === "female"
+        ? t("female")
+        : item.gender === "unisex"
+        ? t("unisex")
+        : item.gender,
+    nationality:
+      item.nationality === "thai"
+        ? t("thai")
+        : item.nationality === "french"
+        ? t("french")
+        : item.nationality === "usa"
+        ? t("usa")
+        : item.nationality,
+  }));
+
+  const paginatedData = convertData.slice(
     (currentPage - 1) * PAGE_SIZE,
     currentPage * PAGE_SIZE
   );
@@ -309,14 +329,14 @@ function Test2() {
             variant="link"
             onClick={() => handleEdit(record.id)}
           >
-            Edit
+            {t("edit")}
           </Button>
           <Button
             color="default"
             variant="link"
             onClick={() => handleDeleteOne(record.id)}
           >
-            Delete
+            {t("delete")}
           </Button>
         </div>
       ),
@@ -360,66 +380,6 @@ function Test2() {
       });
     }
   }, [dataById, form, editData]);
-
-  // useEffect(() => {
-  //   const updateData = [
-  //     {
-  //       prefix: "mr",
-  //       firstName: "มานะ",
-  //       lastName: "รวยมาก",
-  //       birthday: "05/02/2025",
-  //       nationality: "thai",
-  //       citizenID1: "1",
-  //       citizenID2: "1234",
-  //       citizenID3: "12345",
-  //       citizenID4: "12",
-  //       citizenID5: "1",
-  //       gender: "male",
-  //       countryCode: "+66",
-  //       phoneNumber: "0897654356",
-  //       passport: "",
-  //       salary: "25000",
-  //       id: 1,
-  //     },
-  //     {
-  //       prefix: "mrs",
-  //       firstName: "มาลี",
-  //       lastName: "ใจดี",
-  //       birthday: "16/08/2023",
-  //       nationality: "thai",
-  //       citizenID1: "1",
-  //       citizenID2: "1234",
-  //       citizenID3: "12345",
-  //       citizenID4: "12",
-  //       citizenID5: "1",
-  //       gender: "female",
-  //       countryCode: "+1",
-  //       phoneNumber: "1234567890",
-  //       passport: "1234567890",
-  //       salary: "35000",
-  //       id: 2,
-  //     },
-  //     {
-  //       prefix: "mr",
-  //       firstName: "สมุด",
-  //       lastName: "ดินสอ",
-  //       birthday: "01/01/2018",
-  //       nationality: "thai",
-  //       citizenID1: "1",
-  //       citizenID2: "1234",
-  //       citizenID3: "12345",
-  //       citizenID4: "12",
-  //       citizenID5: "1",
-  //       gender: "male",
-  //       countryCode: "+33",
-  //       phoneNumber: "0876512345",
-  //       passport: "1234567890",
-  //       salary: "80000",
-  //       id: 3,
-  //     },
-  //   ];
-  //   localStorage.setItem("formData", JSON.stringify(updateData));
-  // }, []);
 
   return (
     <Container>
