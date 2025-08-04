@@ -50,7 +50,6 @@ const formSlice = createSlice({
       const updateData = [...getData, addID];
 
       localStorage.setItem("formData", JSON.stringify(updateData));
-      state.formData = updateData;
     },
 
     getData: (state) => {
